@@ -10,7 +10,7 @@ Built on a Tesla T4 (Google Colab). Benchmarked against PyTorch CPU and CUDA bas
 
 | Matrix Size | CPU ms | Naive CUDA ms | Tiled CUDA ms | PyTorch CUDA ms | GB/s |
 |------------|--------|---------------|---------------|-----------------|------|
-| 1024×1024 | 1539.67 (512×512 ref) | 23.956 | 18.897 | TBD | 34.93 |
+| 1024×1024 | TBD | 23.956 | 18.897 | TBD | 34.93 |
 
 ## Architecture
 
