@@ -18,10 +18,11 @@ Built on a Tesla T4 (Google Colab). Benchmarked against PyTorch CPU and CUDA bas
 
 Tiled shared-memory GEMM with TILE_WIDTH=16. Each thread block loads a 16×16 tile of A and B into shared memory, computes the partial dot product, then slides to the next tile. This eliminates redundant global memory reads — each element is loaded once per tile instead of once per output element.
 
-## Nsight Compute Profile (1024×1024, T4)
+## Nsight Compute Profile (1024×1024, T4, double precision)
 
-
-Findings: Kernel is compute bound on the FP64 pipeline. Switching to float32 is the primary optimization opportunity — T4 has a 32:1 FP32/FP64 performance ratio.
+Finding: kernel is compute bound on the FP64 pipeline at 97.7% utilization.
+T4 FP32/FP64 ratio is 32:1 — ML Accelerator uses float32 to exploit full T4 throughput.
+New Nsight profile on float32 tiled kernel coming July 24.
 
 ## Project Structure
 
@@ -50,4 +51,4 @@ make tiled_gemm
 - [ ] Float32 optimization (in progress)
 - [ ] Full benchmark table across all matrix sizes
 - [ ] pybind11 Python bindings
-- [ ] PyTorch baseline comparison
+- [x] PyTorch baseline comparison (CPU + CUDA, 256–2048, July 18)
