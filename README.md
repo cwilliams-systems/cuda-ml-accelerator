@@ -5,10 +5,10 @@ Built on a Tesla T4 (Google Colab). Benchmarked against PyTorch CPU and CUDA bas
 *Full benchmark table coming July 27 — currently profiling across matrix sizes 256×256 to 4096×4096.*
 | Matrix Size | CPU ms | Naive CUDA ms | Tiled CUDA ms | PyTorch CPU ms | PyTorch CUDA ms |
 |------------|--------|---------------|---------------|----------------|-----------------|
-| 256×256 | TBD | 0.218 | 0.170 | 0.434 | 0.065 |
-| 512×512 | TBD | 1.005 | 0.703 | 2.350 | 0.134 |
-| 1024×1024 | TBD | 5.574 | 3.401 | 21.977 | 0.807 |
-| 2048×2048 | TBD | 69.062 | 34.700 | 133.788 | 6.070 |
+| 256×256 | 20.647 | 0.218 | 0.170 | 0.434 | 0.065 |
+| 512×512 | 203.569 | 1.005 | 0.703 | 2.350 | 0.134 |
+| 1024×1024 | 3509 | 5.574 | 3.401 | 21.977 | 0.807 |
+| 2048×2048 | 65316.9 | 69.062 | 34.700 | 133.788 | 6.070 |
 ## Architecture
 Tiled shared-memory GEMM with TILE_WIDTH=16. Each thread block loads a 16×16 tile of A and B into shared memory, computes the partial dot product, then slides to the next tile. This eliminates redundant global memory reads — each element is loaded once per tile instead of once per output element.
 ## Nsight Compute Profile (1024×1024, T4, double precision)
