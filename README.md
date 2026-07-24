@@ -10,10 +10,10 @@ Built on a Tesla T4 (Google Colab). Benchmarked against PyTorch CPU and CUDA bas
 | 1024×1024 | 3509 | 5.574 | 3.401 | 21.977 | 0.807 |
 | 2048×2048 | 65316.9 | 69.062 | 34.700 | 133.788 | 6.070 |
 ## Architecture
-Tiled shared-memory GEMM with TILE_WIDTH=16. Each thread block loads a 16×16 tile of A and B into shared memory, computes the partial dot product, then slides to the next tile. This eliminates redundant global memory reads — each element is loaded once per tile instead of once per output element.
+Tiled shared-memory GEMM with TILE_WIDTH=16. Each thread block loads a 16×16 tile of A and B into shared memory, computes the partial dot product, then slides to the next tile. This eliminates redundant global memory reads each element is loaded once per tile instead of once per output element.
 ## Nsight Compute Profile (1024×1024, T4, double precision)
 Finding: kernel is compute bound on the FP64 pipeline at 97.7% utilization.
-T4 FP32/FP64 ratio is 32:1 — ML Accelerator uses float32 to exploit full T4 throughput.
+T4 FP32/FP64 ratio is 32:1. ML Accelerator uses float32 to exploit full T4 throughput.
 New Nsight profile on float32 tiled kernel coming July 24.
 ## Project Structure
 ## Requirements
