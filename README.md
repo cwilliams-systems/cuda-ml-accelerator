@@ -1,8 +1,8 @@
 # cuda-ml-accelerator
-CUDA GEMM kernel with shared memory tiling, Nsight profiling, and Python bindings — Summer 2026.
+CUDA GEMM kernel with shared memory tiling, Nsight profiling, and Python bindings for Summer 2026.
 Built on a Tesla T4 (Google Colab). Benchmarked against PyTorch CPU and CUDA baselines.
 ## Performance
-*Full benchmark table coming July 27 — currently profiling across matrix sizes 256×256 to 4096×4096.*
+*Full benchmark table coming July 27 currently profiling across matrix sizes 256×256 to 4096×4096.*
 | Matrix Size | CPU ms | Naive CUDA ms | Tiled CUDA ms | PyTorch CPU ms | PyTorch CUDA ms |
 |------------|--------|---------------|---------------|----------------|-----------------|
 | 256×256 | 20.647 | 0.218 | 0.170 | 0.434 | 0.065 |
