@@ -42,5 +42,5 @@ make tiled_gemm
 - [x] Nsight Compute profile
 - [x] Float32 optimization
 - [x] Full benchmark table across all matrix sizes
-- [ ] pybind11 Python bindings
+- [x] pybind11 Python bindings
 - [x] PyTorch baseline comparison (CPU + CUDA, 256–2048, July 18)
