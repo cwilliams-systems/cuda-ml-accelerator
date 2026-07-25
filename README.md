@@ -3,14 +3,22 @@ CUDA GEMM kernel with shared memory tiling, Nsight profiling, and Python binding
 Built on a Tesla T4 (Google Colab). Benchmarked against PyTorch CPU and CUDA baselines.
 ## Performance
 *Full benchmark table coming July 27 currently profiling across matrix sizes 256×256 to 4096×4096.*
+## Performance
+*Full benchmark table coming July 27 — currently profiling across matrix sizes 256×256 to 4096×4096.*
 | Matrix Size | CPU ms | Naive CUDA ms | Tiled CUDA ms | PyTorch CPU ms | PyTorch CUDA ms |
 |------------|--------|---------------|---------------|----------------|-----------------|
-| 256×256 | 20.647 | 0.218 | 0.170 | 0.434 | 0.065 |
-| 512×512 | 203.569 | 1.005 | 0.703 | 2.350 | 0.134 |
-| 1024×1024 | 3509 | 5.574 | 3.401 | 21.977 | 0.807 |
-| 2048×2048 | 65316.9 | 69.062 | 34.700 | 133.788 | 6.070 |
+| 256×256 | 20.647 | 0.218 | 0.207 | 0.434 | 0.065 |
+| 512×512 | 203.569 | 1.005 | 0.599 | 2.350 | 0.134 |
+| 1024×1024 | 3509 | 5.574 | 5.355 | 21.977 | 0.807 |
+| 2048×2048 | 65316.9 | 69.062 | 28.7* | 133.788 | 6.070 |
+
+*2048×2048 tiled figure is an averaged warm-run time (cold-start single runs on Colab's shared T4 ranged 25–42ms).
+
 ## Architecture
-Tiled shared-memory GEMM with TILE_WIDTH=16. Each thread block loads a 16×16 tile of A and B into shared memory, computes the partial dot product, then slides to the next tile. This eliminates redundant global memory reads each element is loaded once per tile instead of once per output element.
+Tiled shared-memory GEMM with TILE_WIDTH=32 (updated July 24 from an initial TILE_WIDTH=16 — see below). Each thread block loads a 32×32 tile of A and B into shared memory, computes the partial dot product, then slides to the next tile. This eliminates redundant global memory reads — each element is loaded once per tile instead of once per output element.
+
+### Tile size decision (July 24, 2026)
+Benchmarked TILE_WIDTH=16 vs TILE_WIDTH=32 at 2048×2048 with Nsight Compute. TILE=32 wins: ~9.4% faster Duration (41.89ms vs 46.26ms), higher occupancy (99.97% vs 99.63%), and DRAM read bandwidth drops by more than half (92.49→ 39.43 GB/s) reflecting greater shared-memory data reuse per global load, not reduced throughput. Zero shared-memory bank conflicts measured at either tile size, so no padding was needed. Result cross-validated with repeated warm cudaEvent timing after discovering cold-start variance on Colab's shared T4.
 ## Nsight Compute Profile (1024×1024, T4, double precision)
 Finding: kernel is compute bound on the FP64 pipeline at 97.7% utilization.
 T4 FP32/FP64 ratio is 32:1. ML Accelerator uses float32 to exploit full T4 throughput.
