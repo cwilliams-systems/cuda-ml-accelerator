@@ -4,10 +4,10 @@
 #include <cstdlib>
 #include <vector>
 
-# define TILE_WIDTH 16
+# define TILE_WIDTH 32
 
 
-__global__ void tiled_GEMM(const float *A, const float *B, float *C, int M, int K, int N){
+__global__ void tiled_GEMM_32(const float *A, const float *B, float *C, int M, int K, int N){
 
 __shared__ float sharedA[TILE_WIDTH][TILE_WIDTH];
 __shared__ float sharedB[TILE_WIDTH][TILE_WIDTH];
@@ -56,9 +56,9 @@ for (int t = 0; t < numTiles; ++t){
 
 int main(){
 
-  const int M = 256;
-  const int K = 256;
-  const int N = 256;
+  const int M = 2048;
+  const int K = 2048;
+  const int N = 2048;
 
   std::srand(42);
 
@@ -100,7 +100,7 @@ int main(){
 
   cudaEventRecord(start);
 
-  tiled_GEMM<<<gridSize, blockSize>>>(d_A, d_B, d_C, M, K, N);
+  tiled_GEMM_32<<<gridSize, blockSize>>>(d_A, d_B, d_C, M, K, N);
 
   cudaEventRecord(stop);
   cudaEventSynchronize(stop);
