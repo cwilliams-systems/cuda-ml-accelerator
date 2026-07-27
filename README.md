@@ -13,10 +13,10 @@ Built on a Tesla T4 (Google Colab). Benchmarked against PyTorch CPU and CUDA bas
 
 *Averaged warm-run timing (cold-start single runs on Colab's shared T4 showed higher, inconsistent values — see Tile Size Optimization section). PyTorch CUDA figures use proper warmup + averaging via benchmarks/pytorch_baseline.py.
 
-Correctness validated at every size — naive, tiled, and CPU produce identical C[0] output. PyTorch/cuBLAS outperforms the hand-written tiled kernel at every size; the gap is attributable to register blocking, double buffering, and hand-tuned instruction scheduling used in cuBLAS but out of scope for this project.
+Correctness validated at every size: naive, tiled, and CPU produce identical C[0] output. PyTorch/cuBLAS outperforms the hand-written tiled kernel at every size; the gap is attributable to register blocking, double buffering, and hand-tuned instruction scheduling used in cuBLAS but out of scope for this project.
 
 ## Architecture
-Tiled shared-memory GEMM with TILE_WIDTH=32 (updated July 24 from an initial TILE_WIDTH=16 — see below). Each thread block loads a 32×32 tile of A and B into shared memory, computes the partial dot product, then slides to the next tile. This eliminates redundant global memory reads — each element is loaded once per tile instead of once per output element.
+Tiled shared-memory GEMM with TILE_WIDTH=32 (updated July 24 from an initial TILE_WIDTH=16 see below). Each thread block loads a 32×32 tile of A and B into shared memory, computes the partial dot product, then slides to the next tile. This eliminates redundant global memory reads — each element is loaded once per tile instead of once per output element.
 ### Tile size decision (July 24, 2026)
 Benchmarked TILE_WIDTH=16 vs TILE_WIDTH=32 at 2048×2048 with Nsight Compute. TILE=32 wins: ~9.4% faster Duration (41.89ms vs 46.26ms), higher occupancy (99.97% vs 99.63%), and DRAM read bandwidth drops by more than half (92.49→39.43 GB/s) reflecting greater shared-memory data reuse per global load, not reduced throughput. Zero shared-memory bank conflicts measured at either tile size, so no padding was needed. Result cross-validated with repeated warm cudaEvent timing after discovering cold-start variance on Colab's shared T4.
 ## Nsight Compute Profile (1024×1024, T4, double precision)
