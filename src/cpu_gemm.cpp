@@ -17,7 +17,7 @@ void cpu_gemm(const std::vector<float>& A, const std::vector<float>& B,
 }
 
 int main() {
-    const int M = 2048, K = 2048, N = 2048; 
+    const int M = 256, K = 256, N = 256; 
 
     std::srand(42);
     std::vector<float> A(M * K), B(K * N), C(M * N);
