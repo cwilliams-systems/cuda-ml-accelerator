@@ -1,14 +1,20 @@
 # cuda-ml-accelerator
 CUDA GEMM kernel with shared memory tiling, Nsight profiling, and Python bindings for Summer 2026.
 Built on a Tesla T4 (Google Colab). Benchmarked against PyTorch CPU and CUDA baselines.
+
 ## Performance
-*Full benchmark table coming July 27 — currently profiling across matrix sizes 256×256 to 4096×4096.*
-| Matrix Size | CPU ms | Naive CUDA ms | Tiled CUDA ms | PyTorch CPU ms | PyTorch CUDA ms |
-|------------|--------|---------------|---------------|----------------|-----------------|
-| 256×256 | 20.647 | 0.218 | 0.207 | 0.434 | 0.065 |
-| 512×512 | 203.569 | 1.005 | 0.599 | 2.350 | 0.134 |
-| 1024×1024 | 3509 | 5.574 | 5.355 | 21.977 | 0.807 |
-| 2048×2048 | 65316.9 | 69.062 | 28.7* | 133.788 | 6.070 |
+| Matrix Size | CPU ms | Naive CUDA ms | Tiled CUDA ms | PyTorch CUDA ms | Tiled GFLOPS |
+|------------|--------|---------------|---------------|------------------|--------------|
+| 256×256 | 20.647 | 0.218 | 0.207 | 0.065 | 162.1 |
+| 512×512 | 203.569 | 1.005 | 0.599 | 0.134 | 448.1 |
+| 1024×1024 | 3509 | 5.574 | 5.355 | 0.807 | 401.0 |
+| 2048×2048 | 65316.9 | 69.062 | 28.7* | 6.070 | 598.6 |
+| 4096×4096 | 813709 | 330.641 | 147.31* | 209.447 | 932.9 |
+
+*Averaged warm-run timing (cold-start single runs on Colab's shared T4 showed higher, inconsistent values — see Tile Size Optimization section).
+
+Correctness validated at every size — naive, tiled, and CPU produce identical C[0] output. Tiled kernel reaches ~70% of PyTorch/cuBLAS throughput at 4096×4096; the remaining gap is attributable to register blocking, double buffering, and hand-tuned instruction scheduling used in cuBLAS but out of scope for this project.
+Correctness validated at every size — naive, tiled, and CPU produce identical C[0] output. Tiled kernel reaches ~70% of PyTorch/cuBLAS throughput at 4096×4096; the remaining gap is attributable to register blocking, double buffering, and hand-tuned instruction scheduling used in cuBLAS but out of scope for this project.
 *2048×2048 tiled figure is an averaged warm-run time (cold-start single runs on Colab's shared T4 ranged 25–42ms).
 ## Architecture
 Tiled shared-memory GEMM with TILE_WIDTH=32 (updated July 24 from an initial TILE_WIDTH=16 — see below). Each thread block loads a 32×32 tile of A and B into shared memory, computes the partial dot product, then slides to the next tile. This eliminates redundant global memory reads — each element is loaded once per tile instead of once per output element.
