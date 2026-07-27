@@ -23,6 +23,9 @@ __global__ void matrixMultiply( const float *A, const float *B, float *C, int M,
 }
 
 int main(){
+
+ std::srand(42);
+
   const int M = 256;
   const int K = 256;
   const int N = 256;
