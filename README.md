@@ -15,9 +15,6 @@ Built on a Tesla T4 (Google Colab). Benchmarked against PyTorch CPU and CUDA bas
 
 Correctness validated at every size — naive, tiled, and CPU produce identical C[0] output. PyTorch/cuBLAS outperforms the hand-written tiled kernel at every size; the gap is attributable to register blocking, double buffering, and hand-tuned instruction scheduling used in cuBLAS but out of scope for this project.
 
-Correctness validated at every size — naive, tiled, and CPU produce identical C[0] output. Tiled kernel reaches ~70% of PyTorch/cuBLAS throughput at 4096×4096; the remaining gap is attributable to register blocking, double buffering, and hand-tuned instruction scheduling used in cuBLAS but out of scope for this project.
-Correctness validated at every size — naive, tiled, and CPU produce identical C[0] output. Tiled kernel reaches ~70% of PyTorch/cuBLAS throughput at 4096×4096; the remaining gap is attributable to register blocking, double buffering, and hand-tuned instruction scheduling used in cuBLAS but out of scope for this project.
-*2048×2048 tiled figure is an averaged warm-run time (cold-start single runs on Colab's shared T4 ranged 25–42ms).
 ## Architecture
 Tiled shared-memory GEMM with TILE_WIDTH=32 (updated July 24 from an initial TILE_WIDTH=16 — see below). Each thread block loads a 32×32 tile of A and B into shared memory, computes the partial dot product, then slides to the next tile. This eliminates redundant global memory reads — each element is loaded once per tile instead of once per output element.
 ### Tile size decision (July 24, 2026)
@@ -60,4 +57,4 @@ make tiled_gemm
 - [x] Float32 optimization
 - [x] Full benchmark table across all matrix sizes
 - [x] pybind11 Python bindings
-- [x] PyTorch baseline comparison (CPU + CUDA, 256–2048, July 18)
+- [x] PyTorch baseline comparison (CPU + CUDA, 256–4096, July 27)
