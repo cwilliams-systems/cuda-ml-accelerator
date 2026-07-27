@@ -7,7 +7,7 @@
 # define TILE_WIDTH 32
 
 
-__global__ void tiled_GEMM_32(const float *A, const float *B, float *C, int M, int K, int N){
+__global__ void tiled_GEMM(const float *A, const float *B, float *C, int M, int K, int N){
 
 __shared__ float sharedA[TILE_WIDTH][TILE_WIDTH];
 __shared__ float sharedB[TILE_WIDTH][TILE_WIDTH];
@@ -100,7 +100,7 @@ int main(){
 
   cudaEventRecord(start);
 
-  tiled_GEMM_32<<<gridSize, blockSize>>>(d_A, d_B, d_C, M, K, N);
+  tiled_GEMM<<<gridSize, blockSize>>>(d_A, d_B, d_C, M, K, N);
 
   cudaEventRecord(stop);
   cudaEventSynchronize(stop);
