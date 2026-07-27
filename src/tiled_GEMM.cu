@@ -56,9 +56,9 @@ for (int t = 0; t < numTiles; ++t){
 
 int main(){
 
-  const int M = 2048;
-  const int K = 2048;
-  const int N = 2048;
+  const int M = 256;
+  const int K = 256;
+  const int N = 256;
 
   std::srand(42);
 
