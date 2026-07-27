@@ -5,13 +5,15 @@ Built on a Tesla T4 (Google Colab). Benchmarked against PyTorch CPU and CUDA bas
 ## Performance
 | Matrix Size | CPU ms | Naive CUDA ms | Tiled CUDA ms | PyTorch CUDA ms | Tiled GFLOPS |
 |------------|--------|---------------|---------------|------------------|--------------|
-| 256×256 | 20.647 | 0.218 | 0.207 | 0.065 | 162.1 |
-| 512×512 | 203.569 | 1.005 | 0.599 | 0.134 | 448.1 |
-| 1024×1024 | 3509 | 5.574 | 5.355 | 0.807 | 401.0 |
-| 2048×2048 | 65316.9 | 69.062 | 28.7* | 6.070 | 598.6 |
-| 4096×4096 | 813709 | 330.641 | 147.31* | 209.447 | 932.9 |
+| 256×256 | 20.647 | 0.218 | 0.207 | 0.057 | 162.1 |
+| 512×512 | 203.569 | 1.005 | 0.599 | 0.116 | 448.1 |
+| 1024×1024 | 3509 | 5.574 | 5.355 | 0.608 | 401.0 |
+| 2048×2048 | 65316.9 | 69.062 | 28.7* | 4.203 | 598.6 |
+| 4096×4096 | 813709 | 330.641 | 147.31* | 38.039 | 932.9 |
 
-*Averaged warm-run timing (cold-start single runs on Colab's shared T4 showed higher, inconsistent values — see Tile Size Optimization section).
+*Averaged warm-run timing (cold-start single runs on Colab's shared T4 showed higher, inconsistent values — see Tile Size Optimization section). PyTorch CUDA figures use proper warmup + averaging via benchmarks/pytorch_baseline.py.
+
+Correctness validated at every size — naive, tiled, and CPU produce identical C[0] output. PyTorch/cuBLAS outperforms the hand-written tiled kernel at every size; the gap is attributable to register blocking, double buffering, and hand-tuned instruction scheduling used in cuBLAS but out of scope for this project.
 
 Correctness validated at every size — naive, tiled, and CPU produce identical C[0] output. Tiled kernel reaches ~70% of PyTorch/cuBLAS throughput at 4096×4096; the remaining gap is attributable to register blocking, double buffering, and hand-tuned instruction scheduling used in cuBLAS but out of scope for this project.
 Correctness validated at every size — naive, tiled, and CPU produce identical C[0] output. Tiled kernel reaches ~70% of PyTorch/cuBLAS throughput at 4096×4096; the remaining gap is attributable to register blocking, double buffering, and hand-tuned instruction scheduling used in cuBLAS but out of scope for this project.
