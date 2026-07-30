@@ -11,7 +11,7 @@ Built on a Tesla T4 (Google Colab). Benchmarked against PyTorch CPU and CUDA bas
 | 2048×2048 | 65316.9 | 69.062 | 28.7* | 4.203 | 598.6 |
 | 4096×4096 | 813709 | 330.641 | 147.31* | 38.039 | 932.9 |
 
-*Averaged warm-run timing (cold-start single runs on Colab's shared T4 showed higher, inconsistent values — see Tile Size Optimization section). PyTorch CUDA figures use proper warmup + averaging via benchmarks/pytorch_baseline.py.
+Averaged warm-run timing (cold-start single runs on Colab's shared T4 showed higher, inconsistent values: see Tile Size Optimization section). PyTorch CUDA figures use proper warmup and averaging via benchmarks/pytorch_baseline.py.
 
 Correctness validated at every size: naive, tiled, and CPU produce identical C[0] output. PyTorch/cuBLAS outperforms the hand-written tiled kernel at every size; the gap is attributable to register blocking, double buffering, and hand-tuned instruction scheduling used in cuBLAS but out of scope for this project.
 
