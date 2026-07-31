@@ -1,12 +1,12 @@
 
-#What is Shared Memory?
+# What is Shared Memory?
 
 Shared Memory is a small(tens of KB), fast on chip memory that is scoped to a singular thread block
 meaning every thread in the block can read and write it and it is roughly 10 to 20x faster than global memory.
 
 [Diagram: memory hierarchy: see images/memory-hierarchy.png]
 
-##How the tiled kernel uses it
+## How the tiled kernel uses it
 
 Each thread block declares two shared meory arrays sized TILE_WIDTH X TILE_WIDTH (in my case 32x32 in the final kernel).
 Threads cooperatively load one tile of A and one tile of B in these arrays using __syncthreads to synchronize then every thread in
