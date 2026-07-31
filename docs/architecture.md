@@ -23,7 +23,7 @@ loads into shared memory onces and reuses it over and over before moving on to t
 trades a huge amount of global memory reads for a small number of slow reads + many fast reads. This becomes 
 the main idea for every optimized GEMM kernel including cuBLAS itself.
 
-[Diagram: tile-loading pattern — see images/tiled-gemm.png]
+![Tile loading pattern — how tiles from Matrix A and B load into shared memory](../images/tile-diagram.png)
 
 ## Tile size decision: TILE_WIDTH at 32
 Benchmarked TILE_WIDTH at 16 vs TILE_WIDTH ar 32 at 2048x2048 using Nsight
