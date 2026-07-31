@@ -4,7 +4,7 @@
 Shared Memory is a small(tens of KB), fast on chip memory that is scoped to a singular thread block
 meaning every thread in the block can read and write it and it is roughly 10 to 20x faster than global memory.
 
-[Diagram: memory hierarchy: see images/memory-hierarchy.png]
+![Memory hierarchy — global memory, shared memory, and registers](../images/memory-hierarchy.png)
 
 ## How the tiled kernel uses it
 
