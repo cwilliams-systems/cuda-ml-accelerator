@@ -1,5 +1,5 @@
 # cuda-ml-accelerator
-**⚡ 932.9 GFLOPS at 4096×4096 (float32, T4)** These feature a tiled shared-memory GEMM with Nsight-validated tile size selection, pybind11 Python bindings, and correctness checks against CPU, naive, and PyTorch baselines across five matrix sizes. It achieves 26% of the measured throughput of PyTorch/cuBLAS at this size, showing 932.9 GFLOPS compared to cuBLAS's approximately 3,613 GFLOPS equivalent. The remaining gaps are the results from register blocking, double buffering, and hand-tuned instruction scheduling used in cuBLAS but are not included in this porjet
+**⚡ 932.9 GFLOPS at 4096×4096 (float32, T4)** These numbers show a tiled shared-memory GEMM with Nsight-validated tile size, pybind11 Python bindings, and correctness checks against the CPU, naive, and PyTorch baselines across five matrix sizes. It achieves 26% of the measured throughput of PyTorch/cuBLAS at this size, showing 932.9 GFLOPS compared to cuBLAS's approximately 3,613 GFLOPS. The gap between the tiled shared memory GEMM and the cuBLAS are the results from register blocking, double buffering, and instruction scheduling used in cuBLAS but are not included in this porjet
 
 ![CUDA](https://img.shields.io/badge/CUDA-13.0-76B900?logo=nvidia&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python&logoColor=white)
@@ -19,17 +19,17 @@ Built on a Tesla T4 (Google Colab). Benchmarked against PyTorch CPU and CUDA bas
 | 2048×2048 | 65316.9 | 69.062 | 28.7* | 4.203 | 598.6 |
 | 4096×4096 | 813709 | 330.641 | 147.31* | 38.039 | 932.9 |
 
-The warm-run times have been averaged (the individual cold-start runs on Colab's shared T4 yielded higher and more inconsistent results: see the Tile Size Optimization section). The PyTorch CUDA figures make use of warmup and averaging as defined in the script benchmarks/pytorch_baseline.py.
+The warm-run times have been averaged and have shown that the individual cold-start runs on Colab's shared T4 yielded higher and more inconsistent results: see the Tile Size Optimization section for details). The PyTorch CUDA figures can make use of warmup and averaging as defined in the script benchmarks/pytorch_baseline.py.
 
-Correct results are obtained at all sizes since the naive, tiled, and CPU versions all produce the same C[0] output. The PyTorch/cuBLAS version beats the hand-written tiled kernel at every size; this performance advantage is due to the use of register blocking, double buffering, and hand-tuned instruction scheduling in cuBLAS, factors which are beyond the scope of this project.
+Correct results are shown at all sizes because of the naive, tiled, and CPU versions all produce the same C[0] output. The PyTorch/cuBLAS version beats the hand-written tiled kernel at every size. This huge performance advantage is due to the use of register blocking, double buffering, andinstruction scheduling in cuBLAS, factors that cannot be utilized for this project.
 
 ## Architecture
-Tiled shared-memory GEMM with TILE_WIDTH=32 (updated July 24 from an initial TILE_WIDTH=16 see below). Each thread block loads a 32×32 tile of A and B into shared memory, computes the partial dot product, then slides to the next tile. This eliminates redundant global memory reads — each element is loaded once per tile instead of once per output element.
+Tiled shared-memory GEMM with TILE_WIDTH=32 (This is updated from July 24 from an initial TILE_WIDTH=16 see below). Each thread block loads a 32×32 tile of A and B into shared memory and computes the partial dot product, then moves to the next tile. This fixes the issue of eliminates redundant global memory reads meaning each element is loaded once per tile instead of once per output element.
 ### Tile size decision (July 24, 2026)
-Benchmarked TILE_WIDTH=16 vs TILE_WIDTH=32 at 2048×2048 with Nsight Compute. TILE=32 wins: ~9.4% faster Duration (41.89ms vs 46.26ms), higher occupancy (99.97% vs 99.63%), and DRAM read bandwidth drops by more than half (92.49→39.43 GB/s) reflecting greater shared-memory data reuse per global load, not reduced throughput. Zero shared-memory bank conflicts measured at either tile size, so no padding was needed. Result cross-validated with repeated warm cudaEvent timing after discovering cold-start variance on Colab's shared T4.
+I benchmarked TILE_WIDTH at 16 vs TILE_WIDTH at 32 at 2048×2048 with Nsight Compute. The results showed that TILE at 32 wins. The results were as followed: An about ~9.4% faster Duration (showing 41.89ms vs 46.26ms), higher occupancy (with 99.97% vs 99.63%), and DRAM read bandwidth was cut in half (92.49 vs 39.43 GB/s) this showed a greater shared-memory data reuse per global load and not reduced throughput. The zero shared-memory bank conflicts measured at either tile size so no padding was needed. These results were validated with repeated warm cudaEvent timing after I discovered a cold-start variance on Colab's shared T4.
 ## Nsight Compute Profile (1024×1024, T4, double precision)
-Finding: kernel is compute bound on the FP64 pipeline at 97.7% utilization.
-T4 FP32/FP64 ratio is 32:1. ML Accelerator uses float32 to exploit full T4 throughput.
+Findings showed at the kernel is compute bound on the FP64 pipeline at 97.7% utilization.
+T4 FP32/FP64 ratio is 32:1. ML Accelerator uses float32 to utilize full T4 throughput.
 See the float32 profile below for the shipped TILE_WIDTH=32 kernel.
 ## Nsight Compute Profile — float32, TILE_WIDTH=32 (July 24, 2026)
 Matrix: 2048×2048, float32. Data collected during the TILE=16 vs TILE=32 comparison.
