@@ -1,5 +1,5 @@
 # cuda-ml-accelerator
-**⚡ 932.9 GFLOPS at 4096×4096 (float32, T4)** — tiled shared-memory GEMM with Nsight-validated tile size selection, pybind11 Python bindings, and full correctness verification against CPU/naive/PyTorch baselines across five matrix sizes. Reaches ~26% of PyTorch/cuBLAS's measured throughput at this size (932.9 GFLOPS vs cuBLAS's ~5,110 GFLOPS equivalent) — the remaining gap comes from register blocking, double buffering, and hand-tuned instruction scheduling used in cuBLAS but out of scope for this project.
+**⚡ 932.9 GFLOPS at 4096×4096 (float32, T4)** — tiled shared-memory GEMM with Nsight-validated tile size selection, pybind11 Python bindings, and full correctness verification against CPU/naive/PyTorch baselines across five matrix sizes. Reaches ~26% of PyTorch/cuBLAS's measured throughput at this size (932.9 GFLOPS vs cuBLAS's ~3,613 GFLOPS equivalent) — the remaining gap comes from register blocking, double buffering, and hand-tuned instruction scheduling used in cuBLAS but out of scope for this project.
 
 ![CUDA](https://img.shields.io/badge/CUDA-13.0-76B900?logo=nvidia&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python&logoColor=white)
@@ -46,6 +46,31 @@ Matrix: 2048×2048, float32. Data collected during the TILE=16 vs TILE=32 compar
 
 DRAM read bandwidth is lower than TILE_WIDTH=16's 92.49 GB/s at the same size — this reflects greater shared-memory data reuse per global load (less total data movement needed to do the same work), not reduced throughput. Zero bank conflicts measured, so no padding was applied.
 ## Project Structure
+## Project Structure
+```
+cuda-ml-accelerator/
+├── README.md
+├── LICENSE
+├── Makefile
+│
+├── src/
+│   ├── naive_gemm.cu       # Naive GEMM (double precision baseline)
+│   ├── tiled_GEMM.cu       # Tiled shared-memory GEMM (TILE_WIDTH=32, final)
+│   ├── cpu_gemm.cpp        # CPU reference implementation
+│   └── bindings.cu         # pybind11 bindings — exposes gemm() to Python
+│
+├── benchmarks/
+│   └── benchmark.py        # PyTorch CPU/CUDA baseline benchmarks
+│
+├── docs/
+│   ├── architecture.md     # GEMM explanation, tiling, tile size decision
+│   ├── shared-memory.md    # Shared memory mechanics and occupancy
+│   └── memory-coalescing.md # Bank conflict analysis
+│
+└── images/
+    ├── tile-diagram.png       # Tile loading pattern
+    └── memory-hierarchy.png   # Global → shared → register hierarchy
+```
 ## Requirements
 - CUDA Toolkit 13.0+
 - Python 3.x
