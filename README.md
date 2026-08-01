@@ -1,6 +1,12 @@
 # cuda-ml-accelerator
 **⚡ 932.9 GFLOPS at 4096×4096 (float32, T4)** — tiled shared-memory GEMM with Nsight-validated tile size selection, pybind11 Python bindings, and full correctness verification against CPU/naive/PyTorch baselines across five matrix sizes. Reaches ~26% of PyTorch/cuBLAS's measured throughput at this size (932.9 GFLOPS vs cuBLAS's ~5,110 GFLOPS equivalent) — the remaining gap comes from register blocking, double buffering, and hand-tuned instruction scheduling used in cuBLAS but out of scope for this project.
 
+![CUDA](https://img.shields.io/badge/CUDA-13.0-76B900?logo=nvidia&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python&logoColor=white)
+![GPU](https://img.shields.io/badge/GPU-Tesla%20T4-76B900)
+![pybind11](https://img.shields.io/badge/pybind11-enabled-orange)
+![License](https://img.shields.io/badge/license-MIT-lightgrey)
+
 CUDA GEMM kernel with shared memory tiling, Nsight profiling, and Python bindings for Summer 2026.
 Built on a Tesla T4 (Google Colab). Benchmarked against PyTorch CPU and CUDA baselines.
 
