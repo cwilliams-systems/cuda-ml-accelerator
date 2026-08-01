@@ -1,5 +1,5 @@
 # cuda-ml-accelerator
-**⚡ 932.9 GFLOPS at 4096×4096 (float32, T4)** — tiled shared-memory GEMM with Nsight-validated tile size selection, pybind11 Python bindings, and full correctness verification against CPU/naive/PyTorch baselines across five matrix sizes. Reaches ~26% of PyTorch/cuBLAS's measured throughput at this size (932.9 GFLOPS vs cuBLAS's ~3,613 GFLOPS equivalent) — the remaining gap comes from register blocking, double buffering, and hand-tuned instruction scheduling used in cuBLAS but out of scope for this project.
+**⚡ 932.9 GFLOPS at 4096×4096 (float32, T4)** These feature a tiled shared-memory GEMM with Nsight-validated tile size selection, pybind11 Python bindings, and correctness checks against CPU, naive, and PyTorch baselines across five matrix sizes. It achieves 26% of the measured throughput of PyTorch/cuBLAS at this size, showing 932.9 GFLOPS compared to cuBLAS's approximately 3,613 GFLOPS equivalent. The remaining gaps are the results from register blocking, double buffering, and hand-tuned instruction scheduling used in cuBLAS but are not included in this porjet
 
 ![CUDA](https://img.shields.io/badge/CUDA-13.0-76B900?logo=nvidia&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python&logoColor=white)
@@ -19,9 +19,9 @@ Built on a Tesla T4 (Google Colab). Benchmarked against PyTorch CPU and CUDA bas
 | 2048×2048 | 65316.9 | 69.062 | 28.7* | 4.203 | 598.6 |
 | 4096×4096 | 813709 | 330.641 | 147.31* | 38.039 | 932.9 |
 
-Averaged warm-run timing (cold-start single runs on Colab's shared T4 showed higher, inconsistent values: see Tile Size Optimization section). PyTorch CUDA figures use proper warmup and averaging via benchmarks/pytorch_baseline.py.
+The warm-run times have been averaged (the individual cold-start runs on Colab's shared T4 yielded higher and more inconsistent results: see the Tile Size Optimization section). The PyTorch CUDA figures make use of warmup and averaging as defined in the script benchmarks/pytorch_baseline.py.
 
-Correctness validated at every size: naive, tiled, and CPU produce identical C[0] output. PyTorch/cuBLAS outperforms the hand-written tiled kernel at every size; the gap is attributable to register blocking, double buffering, and hand-tuned instruction scheduling used in cuBLAS but out of scope for this project.
+Correct results are obtained at all sizes since the naive, tiled, and CPU versions all produce the same C[0] output. The PyTorch/cuBLAS version beats the hand-written tiled kernel at every size; this performance advantage is due to the use of register blocking, double buffering, and hand-tuned instruction scheduling in cuBLAS, factors which are beyond the scope of this project.
 
 ## Architecture
 Tiled shared-memory GEMM with TILE_WIDTH=32 (updated July 24 from an initial TILE_WIDTH=16 see below). Each thread block loads a 32×32 tile of A and B into shared memory, computes the partial dot product, then slides to the next tile. This eliminates redundant global memory reads — each element is loaded once per tile instead of once per output element.
