@@ -1,4 +1,6 @@
 # cuda-ml-accelerator
+**⚡ 932.9 GFLOPS at 4096×4096 (float32, T4)** — tiled shared-memory GEMM with Nsight-validated tile size selection, pybind11 Python bindings, and full correctness verification against CPU/naive/PyTorch baselines across five matrix sizes. Reaches ~26% of PyTorch/cuBLAS's measured throughput at this size (932.9 GFLOPS vs cuBLAS's ~5,110 GFLOPS equivalent) — the remaining gap comes from register blocking, double buffering, and hand-tuned instruction scheduling used in cuBLAS but out of scope for this project.
+
 CUDA GEMM kernel with shared memory tiling, Nsight profiling, and Python bindings for Summer 2026.
 Built on a Tesla T4 (Google Colab). Benchmarked against PyTorch CPU and CUDA baselines.
 
@@ -48,6 +50,26 @@ DRAM read bandwidth is lower than TILE_WIDTH=16's 92.49 GB/s at the same size �
 ```bash
 make tiled_gemm
 ./tiled_gemm
+```
+## Usage (Python)
+Once built, the CUDA kernel is callable directly from Python via the pybind11 bindings:
+
+```python
+import numpy as np
+import tiled_gemm_cuda
+
+A = np.random.rand(1024, 1024).astype(np.float32)
+B = np.random.rand(1024, 1024).astype(np.float32)
+
+C = tiled_gemm_cuda.gemm(A, B)
+```
+
+Build the module first:
+```bash
+nvcc -O3 -arch=sm_75 -shared -Xcompiler -fPIC \
+  $(python3 -m pybind11 --includes) \
+  -I$(python3 -c "import sysconfig; print(sysconfig.get_paths()['include'])") \
+  src/bindings.cu -o tiled_gemm_cuda.so
 ```
 ## Status
 - [x] Naive GEMM kernel
